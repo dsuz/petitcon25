@@ -4,37 +4,37 @@
 #include "SideScrollingPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/PlayerStart.h"
-#include "SideScrollingCharacter.h"
+// #include "Kismet/GameplayStatics.h"
+// #include "GameFramework/PlayerStart.h"
+// #include "SideScrollingCharacter.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
-#include "Blueprint/UserWidget.h"
-#include "petitcon25.h"
-#include "Widgets/Input/SVirtualJoystick.h"
+// #include "Blueprint/UserWidget.h"
+// #include "petitcon25.h"
+// #include "Widgets/Input/SVirtualJoystick.h"
 
 void ASideScrollingPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	// only spawn touch controls on local player controllers
-	if (ShouldUseTouchControls() && IsLocalPlayerController())
-	{
-		// spawn the mobile controls widget
-		MobileControlsWidget = CreateWidget<UUserWidget>(this, MobileControlsWidgetClass);
-
-		if (MobileControlsWidget)
-		{
-			// add the controls to the player screen
-			MobileControlsWidget->AddToPlayerScreen(0);
-
-		} else {
-
-			UE_LOG(Logpetitcon25, Error, TEXT("Could not spawn mobile controls widget."));
-
-		}
-
-	}
+	// if (ShouldUseTouchControls() && IsLocalPlayerController())
+	// {
+	// 	// spawn the mobile controls widget
+	// 	MobileControlsWidget = CreateWidget<UUserWidget>(this, MobileControlsWidgetClass);
+	//
+	// 	if (MobileControlsWidget)
+	// 	{
+	// 		// add the controls to the player screen
+	// 		MobileControlsWidget->AddToPlayerScreen(0);
+	//
+	// 	} else {
+	//
+	// 		UE_LOG(Logpetitcon25, Error, TEXT("Could not spawn mobile controls widget."));
+	//
+	// 	}
+	//
+	// }
 }
 
 void ASideScrollingPlayerController::SetupInputComponent()
@@ -53,46 +53,46 @@ void ASideScrollingPlayerController::SetupInputComponent()
 			}
 
 			// only add these IMCs if we're not using mobile touch input
-			if (!ShouldUseTouchControls())
-			{
-				for (UInputMappingContext* CurrentContext : MobileExcludedMappingContexts)
-				{
-					Subsystem->AddMappingContext(CurrentContext, 0);
-				}
-			}
+			// if (!ShouldUseTouchControls())
+			// {
+			// 	for (UInputMappingContext* CurrentContext : MobileExcludedMappingContexts)
+			// 	{
+			// 		Subsystem->AddMappingContext(CurrentContext, 0);
+			// 	}
+			// }
 		}
 	}
 }
 
-void ASideScrollingPlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
+// void ASideScrollingPlayerController::OnPossess(APawn* InPawn)
+// {
+// 	Super::OnPossess(InPawn);
+//
+// 	// subscribe to the pawn's OnDestroyed delegate
+// 	InPawn->OnDestroyed.AddDynamic(this, &ASideScrollingPlayerController::OnPawnDestroyed);
+// }
 
-	// subscribe to the pawn's OnDestroyed delegate
-	InPawn->OnDestroyed.AddDynamic(this, &ASideScrollingPlayerController::OnPawnDestroyed);
-}
+// void ASideScrollingPlayerController::OnPawnDestroyed(AActor* DestroyedActor)
+// {
+// 	// find the player start
+// 	TArray<AActor*> ActorList;
+// 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), ActorList);
+//
+// 	if (ActorList.Num() > 0)
+// 	{
+// 		// spawn a character at the player start
+// 		const FTransform SpawnTransform = ActorList[0]->GetActorTransform();
+//
+// 		if (ASideScrollingCharacter* RespawnedCharacter = GetWorld()->SpawnActor<ASideScrollingCharacter>(CharacterClass, SpawnTransform))
+// 		{
+// 			// possess the character
+// 			Possess(RespawnedCharacter);
+// 		}
+// 	}
+// }
 
-void ASideScrollingPlayerController::OnPawnDestroyed(AActor* DestroyedActor)
-{
-	// find the player start
-	TArray<AActor*> ActorList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), ActorList);
-
-	if (ActorList.Num() > 0)
-	{
-		// spawn a character at the player start
-		const FTransform SpawnTransform = ActorList[0]->GetActorTransform();
-
-		if (ASideScrollingCharacter* RespawnedCharacter = GetWorld()->SpawnActor<ASideScrollingCharacter>(CharacterClass, SpawnTransform))
-		{
-			// possess the character
-			Possess(RespawnedCharacter);
-		}
-	}
-}
-
-bool ASideScrollingPlayerController::ShouldUseTouchControls() const
-{
-	// are we on a mobile platform? Should we force touch?
-	return SVirtualJoystick::ShouldDisplayTouchInterface() || bForceTouchControls;
-}
+// bool ASideScrollingPlayerController::ShouldUseTouchControls() const
+// {
+// 	// are we on a mobile platform? Should we force touch?
+// 	return SVirtualJoystick::ShouldDisplayTouchInterface() || bForceTouchControls;
+// }

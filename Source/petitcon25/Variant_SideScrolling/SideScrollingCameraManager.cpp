@@ -1,5 +1,5 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
-
+// これは使っていない
 
 #include "SideScrollingCameraManager.h"
 #include "GameFramework/Pawn.h"

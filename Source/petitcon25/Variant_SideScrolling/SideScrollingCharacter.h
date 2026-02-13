@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "SideScrollingCharacter.generated.h"
 
-class UCameraComponent;
+// class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 
@@ -19,8 +19,8 @@ class ASideScrollingCharacter : public ACharacter
 	GENERATED_BODY()
 
 	/** Player camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category ="Camera", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* Camera;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category ="Camera", meta = (AllowPrivateAccess = "true"))
+	// UCameraComponent* Camera;
 
 protected:
 

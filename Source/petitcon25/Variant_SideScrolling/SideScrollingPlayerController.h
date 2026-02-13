@@ -1,10 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
-
+// タッチ操作が要らない。必要なのは EnhancedInput の初期化だけ
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "EnhancedInput/Public/InputAction.h"
+//#include "EnhancedInput/Public/InputAction.h"
 #include "SideScrollingPlayerController.generated.h"
 
 class ASideScrollingCharacter;
@@ -27,24 +27,24 @@ protected:
 	TArray<UInputMappingContext*> DefaultMappingContexts;
 
 	/** Input Mapping Contexts */
-	UPROPERTY(EditAnywhere, Category="Input|Input Mappings")
-	TArray<UInputMappingContext*> MobileExcludedMappingContexts;
+	// UPROPERTY(EditAnywhere, Category="Input|Input Mappings")
+	// TArray<UInputMappingContext*> MobileExcludedMappingContexts;
 
 	/** Mobile controls widget to spawn */
-	UPROPERTY(EditAnywhere, Category="Input|Touch Controls")
-	TSubclassOf<UUserWidget> MobileControlsWidgetClass;
+	// UPROPERTY(EditAnywhere, Category="Input|Touch Controls")
+	// TSubclassOf<UUserWidget> MobileControlsWidgetClass;
 
 	/** Pointer to the mobile controls widget */
-	UPROPERTY()
-	TObjectPtr<UUserWidget> MobileControlsWidget;
+	// UPROPERTY()
+	// TObjectPtr<UUserWidget> MobileControlsWidget;
 
 	/** If true, the player will use UMG touch controls even if not playing on mobile platforms */
-	UPROPERTY(EditAnywhere, Config, Category = "Input|Touch Controls")
-	bool bForceTouchControls = false;
+	// UPROPERTY(EditAnywhere, Config, Category = "Input|Touch Controls")
+	// bool bForceTouchControls = false;
 
 	/** Character class to respawn when the possessed pawn is destroyed */
-	UPROPERTY(EditAnywhere, Category="Respawn")
-	TSubclassOf<ASideScrollingCharacter> CharacterClass;
+	// UPROPERTY(EditAnywhere, Category="Respawn")
+	// TSubclassOf<ASideScrollingCharacter> CharacterClass;
 
 protected:
 
@@ -55,13 +55,13 @@ protected:
 	virtual void SetupInputComponent() override;
 
 	/** Pawn initialization */
-	virtual void OnPossess(APawn* InPawn) override;
+	// virtual void OnPossess(APawn* InPawn) override;
 
 	/** Called if the possessed pawn is destroyed */
-	UFUNCTION()
-	void OnPawnDestroyed(AActor* DestroyedActor);
+	// UFUNCTION()
+	// void OnPawnDestroyed(AActor* DestroyedActor);
 
 	/** Returns true if the player should use UMG touch controls */
-	bool ShouldUseTouchControls() const;
+	// bool ShouldUseTouchControls() const;
 
 };

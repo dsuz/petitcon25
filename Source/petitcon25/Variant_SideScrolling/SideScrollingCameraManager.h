@@ -1,5 +1,5 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
-
+// これは使っていない
 #pragma once
 
 #include "CoreMinimal.h"

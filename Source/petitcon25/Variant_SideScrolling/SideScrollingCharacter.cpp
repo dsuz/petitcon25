@@ -46,11 +46,11 @@ ASideScrollingCharacter::ASideScrollingCharacter()
 	GetCharacterMovement()->PerchRadiusThreshold = 15.0f;
 	GetCharacterMovement()->LedgeCheckThreshold = 6.0f;
 
-	GetCharacterMovement()->JumpZVelocity = 750.0f;
-	GetCharacterMovement()->AirControl = 1.0f;
+	//GetCharacterMovement()->JumpZVelocity = 750.0f;
+	//GetCharacterMovement()->AirControl = 1.0f;
 
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 750.0f, 0.0f);
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	// GetCharacterMovement()->RotationRate = FRotator(0.0f, 750.0f, 0.0f);
+	// GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.0f, 1.0f, 0.0f));
 	GetCharacterMovement()->bConstrainToPlane = true;

@@ -34,10 +34,8 @@ void AEnemy::Die(AActor* DamageCauser)
 		Direction += GetActorRightVector() * FMath::RandRange(-1, 1);
 		Direction += GetActorUpVector() * FMath::RandRange(0, 3);
 		Direction.Normalize();
-		UE_LOG(LogTemp, Log, TEXT("%s"), *Direction.ToCompactString());
 	}
-	
-	GetMesh()->AddImpulse(Direction * 500, TEXT("pelvis"), true);
+	GetMesh()->AddImpulse(Direction * PushOnDie, TEXT("pelvis"), true);
 }
 
 void AEnemy::ActivateRagdoll()
@@ -48,13 +46,13 @@ void AEnemy::ActivateRagdoll()
 	}
 
 	// Disable player input
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		DisableInput(PC);
-	}
+	// if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	// {
+	// 	DisableInput(PC);
+	// }
 
 	// Detach controller (optional)
-	DetachFromControllerPendingDestroy();
+	// DetachFromControllerPendingDestroy();
 
 	// Set collision profile for ragdoll
 	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));

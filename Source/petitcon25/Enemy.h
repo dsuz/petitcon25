@@ -20,6 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxLife = 1;
+	UPROPERTY(BlueprintReadOnly)
 	float Life = 1;
 	void Die(AActor* DamageCauser);
 	void ActivateRagdoll();
@@ -28,6 +29,8 @@ protected:
 	float DistanceForDestroy = 700;
 	UPROPERTY()
 	TObjectPtr<APawn> PlayerPawn;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float PushOnDie = 1500;	// 倒された時に吹っ飛ばされる力
 
 public:	
 	// Called every frame

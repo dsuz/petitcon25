@@ -5,14 +5,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 //#include "Camera/CameraComponent.h"
+#include "Enemy.h"
 #include "Components/InputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "Engine/World.h"
 #include "SideScrollingInteractable.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
+#include "Engine/DamageEvents.h"
+#include "Kismet/GameplayStatics.h"
 
 ASideScrollingCharacter::ASideScrollingCharacter()
 {
@@ -218,6 +220,21 @@ void ASideScrollingCharacter::DoInteract()
 	}
 }
 
+void ASideScrollingCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	// モンタージュ通知を受け取って実行される関数をここでバインドする
+	AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ASideScrollingCharacter::OnAttackMontageNotifyBegin);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No Anim Instance"));
+	}
+}
+
 // void ASideScrollingCharacter::MultiJump()
 // {
 // 	// does the user want to drop to a lower platform?
@@ -368,3 +385,52 @@ void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
 // {
 // 	return bHasWallJumped;
 // }
+
+void ASideScrollingCharacter::Attack(UAnimMontage* Montage, UPrimitiveComponent* AttackBounds, float PlayRate)
+{
+	DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	
+	if (AnimInstance)
+	{
+		if (Montage)
+		{
+			CurrentAttackBounds = AttackBounds;
+			AnimInstance->Montage_Play(Montage, PlayRate);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("No Anim Montage"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No Anim Instance"));
+	}
+}
+
+void ASideScrollingCharacter::OnAttackMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
+{
+	if (NotifyName == FName("Attack"))
+	{
+		if (CurrentAttackBounds)
+		{
+			TArray<AActor*> Enemies;
+			CurrentAttackBounds->GetOverlappingActors(Enemies, AEnemy::StaticClass());
+			
+			for (auto Item : Enemies)
+			{
+				if (auto Enemy = Cast<AEnemy>(Item))
+				{
+					FDamageEvent DamageEvent;
+					Enemy->TakeDamage(1, DamageEvent, nullptr, this);
+				}
+			}
+		}
+	}
+	else if (NotifyName == FName("AcceptInput"))
+	{
+		EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	}
+}
+
+

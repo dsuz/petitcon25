@@ -152,6 +152,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoInteract();
 
+	virtual void BeginPlay() override;
+
 protected:
 	/** Handles advanced jump logic */
 	// void MultiJump();
@@ -163,7 +165,13 @@ protected:
 	virtual void JumpIfGrounded();
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void StopJumpingIfInTheAir();
-
+	UFUNCTION(BlueprintCallable, Category="Input")
+	void Attack(UAnimMontage* Montage, UPrimitiveComponent* AttackBounds, float PlayRate = 1);
+	UFUNCTION()
+	void OnAttackMontageNotifyBegin(FName NotifyName,  const FBranchingPointNotifyPayload& Payload);
+	UPROPERTY()
+	TObjectPtr<UPrimitiveComponent> CurrentAttackBounds;	// 攻撃範囲のコリジョン
+	UAnimInstance* AnimInstance; 
 public:
 
 	/** Sets the soft collision response. True passes, False blocks */

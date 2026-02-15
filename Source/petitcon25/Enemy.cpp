@@ -30,10 +30,14 @@ void AEnemy::Die(AActor* DamageCauser)
 	{
 		auto PlayerLocation = DamageCauser->GetActorLocation();
 		Direction = GetActorLocation() - PlayerLocation;
+		Direction.Normalize();
+		Direction += GetActorRightVector() * FMath::RandRange(-1, 1);
+		Direction += GetActorUpVector() * FMath::RandRange(0, 3);
+		Direction.Normalize();
+		UE_LOG(LogTemp, Log, TEXT("%s"), *Direction.ToCompactString());
 	}
-	Direction += GetActorRightVector() * FMath::RandRange(-2, 2);
-	Direction += GetActorUpVector() * FMath::RandRange(0, 3);
-	GetMesh()->AddImpulse(Direction * 100, TEXT("pelvis"));
+	
+	GetMesh()->AddImpulse(Direction * 500, TEXT("pelvis"), true);
 }
 
 void AEnemy::ActivateRagdoll()

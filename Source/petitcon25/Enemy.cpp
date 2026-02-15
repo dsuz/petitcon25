@@ -2,8 +2,9 @@
 
 
 #include "Enemy.h"
-
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -17,12 +18,22 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
 }
 
-void AEnemy::Die()
+void AEnemy::Die(AActor* DamageCauser)
 {
 	ActivateRagdoll();
+	// ふっとばす
+	auto Direction = -1 * GetActorForwardVector();
+	if (DamageCauser)
+	{
+		auto PlayerLocation = DamageCauser->GetActorLocation();
+		Direction = GetActorLocation() - PlayerLocation;
+	}
+	Direction += GetActorRightVector() * FMath::RandRange(-2, 2);
+	Direction += GetActorUpVector() * FMath::RandRange(0, 3);
+	GetMesh()->AddImpulse(Direction * 100, TEXT("pelvis"));
 }
 
 void AEnemy::ActivateRagdoll()
@@ -48,17 +59,23 @@ void AEnemy::ActivateRagdoll()
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
 	GetMesh()->bBlendPhysics = true;
+	
+	// 敵の残骸がプレイヤーを妨害しないようにする
+	auto Capsule = GetCapsuleComponent();
+	Capsule->SetCollisionProfileName(TEXT("Ragdoll"));
 }
 
 float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
                          AActor* DamageCauser)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("TakeDamage: "));
-	Life -= Damage;
-	if (Life <= 0)
+	if (Life > 0)
 	{
-		Life = 0;
-		Die();
+		Life -= Damage;
+		if (Life <= 0)
+		{
+			Life = 0;
+			Die(DamageCauser);	// DamageCauser can be null;
+		}
 	}
 	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 }
@@ -67,7 +84,14 @@ float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AControl
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (PlayerPawn && Life <= 0)
+	{
+		float DistanceToPlayer = FVector::Distance(GetActorLocation(), PlayerPawn->GetActorLocation());
+		if (DistanceToPlayer > DistanceForDestroy)
+		{
+			Destroy();
+		}
+	}
 }
 
 // Called to bind functionality to input

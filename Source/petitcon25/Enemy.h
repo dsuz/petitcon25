@@ -21,8 +21,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxLife = 1;
 	float Life = 1;
-	void Die();
+	void Die(AActor* DamageCauser);
 	void ActivateRagdoll();
+	// ライフ0でこの距離離れたらActorを破棄する
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float DistanceForDestroy = 700;
+	UPROPERTY()
+	TObjectPtr<APawn> PlayerPawn;
 
 public:	
 	// Called every frame

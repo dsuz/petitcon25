@@ -89,10 +89,10 @@ protected:
 	float DropValue = 0.0f;
 
 	/** If true, this character has already wall jumped */
-	bool bHasWallJumped = false;
+	// bool bHasWallJumped = false;
 
 	/** If true, this character has already double jumped */
-	bool bHasDoubleJumped = false;
+	// bool bHasDoubleJumped = false;
 
 	/** If true, this character is moving along the side scrolling axis */
 	bool bMovingHorizontally = false;
@@ -114,7 +114,7 @@ protected:
 	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	/** Landing handling */
-	virtual void Landed(const FHitResult& Hit) override;
+	// virtual void Landed(const FHitResult& Hit) override;
 
 	/** Handle movement mode changes to keep track of coyote time jumps */
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode = 0) override;
@@ -141,27 +141,28 @@ public:
 	virtual void DoDrop(float Value);
 
 	/** Handles jump pressed inputs from either controls or UI interfaces */
-	UFUNCTION(BlueprintCallable, Category="Input")
-	virtual void DoJumpStart();
+	// UFUNCTION(BlueprintCallable, Category="Input")
+	// virtual void DoJumpStart();
 
 	/** Handles jump pressed inputs from either controls or UI interfaces */
-	UFUNCTION(BlueprintCallable, Category="Input")
-	virtual void DoJumpEnd();
+	// UFUNCTION(BlueprintCallable, Category="Input")
+	// virtual void DoJumpEnd();
 
 	/** Handles interact inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoInteract();
 
 protected:
-
 	/** Handles advanced jump logic */
-	void MultiJump();
-
+	// void MultiJump();
 	/** Checks for soft collision with platforms */
 	void CheckForSoftCollision();
-
 	/** Resets wall jump lockout. Called from timer after a wall jump */
-	void ResetWallJump();
+	// void ResetWallJump();
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void JumpIfGrounded();
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void StopJumpingIfInTheAir();
 
 public:
 
@@ -171,10 +172,10 @@ public:
 public:
 
 	/** Returns true if the character has just double jumped */
-	UFUNCTION(BlueprintPure, Category="Side Scrolling")
-	bool HasDoubleJumped() const;
+	// UFUNCTION(BlueprintPure, Category="Side Scrolling")
+	// bool HasDoubleJumped() const;
 
 	/** Returns true if the character has just wall jumped */
-	UFUNCTION(BlueprintPure, Category="Side Scrolling")
-	bool HasWallJumped() const;
+	// UFUNCTION(BlueprintPure, Category="Side Scrolling")
+	// bool HasWallJumped() const;
 };

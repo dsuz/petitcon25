@@ -75,23 +75,26 @@ void ASideScrollingCharacter::SetupPlayerInputComponent(class UInputComponent* P
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASideScrollingCharacter::DoJumpStart);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASideScrollingCharacter::DoJumpEnd);
+		// EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		// EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Interacting
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ASideScrollingCharacter::DoInteract);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this,
+		                                   &ASideScrollingCharacter::DoInteract);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASideScrollingCharacter::Move);
 
 		// Dropping from platform
 		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Triggered, this, &ASideScrollingCharacter::Drop);
-		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Completed, this, &ASideScrollingCharacter::DropReleased);
-
+		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Completed, this,
+		                                   &ASideScrollingCharacter::DropReleased);
 	}
 }
 
-void ASideScrollingCharacter::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void ASideScrollingCharacter::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other,
+                                        class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation,
+                                        FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
@@ -115,11 +118,11 @@ void ASideScrollingCharacter::NotifyHit(class UPrimitiveComponent* MyComp, AActo
 	}
 }
 
-void ASideScrollingCharacter::Landed(const FHitResult& Hit)
-{
-	// reset the double jump
-	bHasDoubleJumped = false;
-}
+// void ASideScrollingCharacter::Landed(const FHitResult& Hit)
+// {
+// 	// reset the double jump
+// 	bHasDoubleJumped = false;
+// }
 
 void ASideScrollingCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode /*= 0*/)
 {
@@ -156,17 +159,17 @@ void ASideScrollingCharacter::DropReleased(const FInputActionValue& Value)
 void ASideScrollingCharacter::DoMove(float Forward)
 {
 	// is movement temporarily disabled after wall jumping?
-	if (!bHasWallJumped)
-	{
-		// save the movement values
-		ActionValueY = Forward;
+	//if (!bHasWallJumped)
+	//{
+	// save the movement values
+	ActionValueY = Forward;
 
-		// figure out the movement direction
-		const FVector MoveDir = FVector(1.0f, Forward > 0.0f ? 0.1f : -0.1f, 0.0f);
+	// figure out the movement direction
+	const FVector MoveDir = FVector(1.0f, Forward > 0.0f ? 0.1f : -0.1f, 0.0f);
 
-		// apply the movement input
-		AddMovementInput(MoveDir, Forward);
-	}
+	// apply the movement input
+	AddMovementInput(MoveDir, Forward);
+	//}
 }
 
 void ASideScrollingCharacter::DoDrop(float Value)
@@ -175,16 +178,16 @@ void ASideScrollingCharacter::DoDrop(float Value)
 	DropValue = Value;
 }
 
-void ASideScrollingCharacter::DoJumpStart()
-{
-	// handle advanced jump behaviors
-	MultiJump();
-}
+// void ASideScrollingCharacter::DoJumpStart()
+// {
+// 	// handle advanced jump behaviors
+// 	MultiJump();
+// }
 
-void ASideScrollingCharacter::DoJumpEnd()
-{
-	StopJumping();
-}
+// void ASideScrollingCharacter::DoJumpEnd()
+// {
+// 	StopJumping();
+// }
 
 void ASideScrollingCharacter::DoInteract()
 {
@@ -215,90 +218,91 @@ void ASideScrollingCharacter::DoInteract()
 	}
 }
 
-void ASideScrollingCharacter::MultiJump()
-{
-	// does the user want to drop to a lower platform?
-	if (DropValue > 0.0f)
-	{
-		CheckForSoftCollision();
-		return;
-	}
-
-	// reset the drop value
-	DropValue = 0.0f;
-
-	// if we're grounded, disregard advanced jump logic
-	if (!GetCharacterMovement()->IsFalling())
-	{
-		Jump();
-		return;
-	}
-
-	// if we have a horizontal input, try for wall jump first
-	if (!bHasWallJumped && !FMath::IsNearlyZero(ActionValueY))
-	{
-		// trace ahead of the character for walls
-		FHitResult OutHit;
-
-		const FVector Start = GetActorLocation();
-		const FVector End = Start + (FVector(ActionValueY > 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f) * WallJumpTraceDistance);
-
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-
-		GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, QueryParams);
-
-		if (OutHit.bBlockingHit)
-		{
-			// rotate to the bounce direction
-			const FRotator BounceRot = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
-			SetActorRotation(FRotator(0.0f, BounceRot.Yaw, 0.0f));
-
-			// calculate the impulse vector
-			FVector WallJumpImpulse = OutHit.ImpactNormal * WallJumpHorizontalImpulse;
-			WallJumpImpulse.Z = GetCharacterMovement()->JumpZVelocity * WallJumpVerticalMultiplier;
-
-			// launch the character away from the wall
-			LaunchCharacter(WallJumpImpulse, true, true);
-
-			// enable wall jump lockout for a bit
-			bHasWallJumped = true;
-
-			// schedule wall jump lockout reset
-			GetWorld()->GetTimerManager().SetTimer(WallJumpTimer, this, &ASideScrollingCharacter::ResetWallJump, DelayBetweenWallJumps, false);
-
-			return;
-		}
-	}
-
-
-
-	// test for double jump only if we haven't already tested for wall jump
-	if (!bHasWallJumped)
-	{
-		// are we still within coyote time frames?
-		if (GetWorld()->GetTimeSeconds() - LastFallTime < MaxCoyoteTime)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Coyote Jump"));
-
-			// use the built-in CMC functionality to do the jump
-			Jump();
-
-		// no coyote time jump
-		} else {
-		
-			// The movement component handles double jump but we still need to manage the flag for animation
-			if (!bHasDoubleJumped)
-			{
-				// raise the double jump flag
-				bHasDoubleJumped = true;
-
-				// let the CMC handle jump
-				Jump();
-			}
-		}
-	}
-}
+// void ASideScrollingCharacter::MultiJump()
+// {
+// 	// does the user want to drop to a lower platform?
+// 	if (DropValue > 0.0f)
+// 	{
+// 		CheckForSoftCollision();
+// 		return;
+// 	}
+//
+// 	// reset the drop value
+// 	DropValue = 0.0f;
+//
+// 	// if we're grounded, disregard advanced jump logic
+// 	if (!GetCharacterMovement()->IsFalling())
+// 	{
+// 		Jump();
+// 		return;
+// 	}
+//
+// 	// if we have a horizontal input, try for wall jump first
+// 	if (!bHasWallJumped && !FMath::IsNearlyZero(ActionValueY))
+// 	{
+// 		// trace ahead of the character for walls
+// 		FHitResult OutHit;
+//
+// 		const FVector Start = GetActorLocation();
+// 		const FVector End = Start + (FVector(ActionValueY > 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f) * WallJumpTraceDistance);
+//
+// 		FCollisionQueryParams QueryParams;
+// 		QueryParams.AddIgnoredActor(this);
+//
+// 		GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, QueryParams);
+//
+// 		if (OutHit.bBlockingHit)
+// 		{
+// 			// rotate to the bounce direction
+// 			const FRotator BounceRot = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
+// 			SetActorRotation(FRotator(0.0f, BounceRot.Yaw, 0.0f));
+//
+// 			// calculate the impulse vector
+// 			FVector WallJumpImpulse = OutHit.ImpactNormal * WallJumpHorizontalImpulse;
+// 			WallJumpImpulse.Z = GetCharacterMovement()->JumpZVelocity * WallJumpVerticalMultiplier;
+//
+// 			// launch the character away from the wall
+// 			LaunchCharacter(WallJumpImpulse, true, true);
+//
+// 			// enable wall jump lockout for a bit
+// 			bHasWallJumped = true;
+//
+// 			// schedule wall jump lockout reset
+// 			GetWorld()->GetTimerManager().SetTimer(WallJumpTimer, this, &ASideScrollingCharacter::ResetWallJump,
+// 			                                       DelayBetweenWallJumps, false);
+//
+// 			return;
+// 		}
+// 	}
+//
+//
+// 	// test for double jump only if we haven't already tested for wall jump
+// 	if (!bHasWallJumped)
+// 	{
+// 		// are we still within coyote time frames?
+// 		if (GetWorld()->GetTimeSeconds() - LastFallTime < MaxCoyoteTime)
+// 		{
+// 			UE_LOG(LogTemp, Warning, TEXT("Coyote Jump"));
+//
+// 			// use the built-in CMC functionality to do the jump
+// 			Jump();
+//
+// 			// no coyote time jump
+// 		}
+// 		else
+// 		{
+// 			// The movement component handles double jump but we still need to manage the flag for animation
+// 			if (!bHasDoubleJumped)
+// 			{
+// 				// raise the double jump flag
+// 				bHasDoubleJumped = true;
+//
+// 				// let the CMC handle jump
+// 				Jump();
+// 			}
+// 		}
+// 	}
+// }
 
 void ASideScrollingCharacter::CheckForSoftCollision()
 {
@@ -327,11 +331,27 @@ void ASideScrollingCharacter::CheckForSoftCollision()
 	}
 }
 
-void ASideScrollingCharacter::ResetWallJump()
+void ASideScrollingCharacter::JumpIfGrounded()
 {
-	// reset the wall jump flag
-	bHasWallJumped = false;
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		Jump();
+	}
 }
+
+void ASideScrollingCharacter::StopJumpingIfInTheAir()
+{
+	if (GetCharacterMovement()->IsFalling())
+	{
+		StopJumping();
+	}
+}
+
+// void ASideScrollingCharacter::ResetWallJump()
+// {
+// 	// reset the wall jump flag
+// 	bHasWallJumped = false;
+// }
 
 void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
 {
@@ -339,12 +359,12 @@ void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
 	GetCapsuleComponent()->SetCollisionResponseToChannel(SoftCollisionObjectType, bEnabled ? ECR_Ignore : ECR_Block);
 }
 
-bool ASideScrollingCharacter::HasDoubleJumped() const
-{
-	return bHasDoubleJumped;
-}
+// bool ASideScrollingCharacter::HasDoubleJumped() const
+// {
+// 	return bHasDoubleJumped;
+// }
 
-bool ASideScrollingCharacter::HasWallJumped() const
-{
-	return bHasWallJumped;
-}
+// bool ASideScrollingCharacter::HasWallJumped() const
+// {
+// 	return bHasWallJumped;
+// }

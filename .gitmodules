@@ -1,3 +1,6 @@
 [submodule "Content/pc25sub"]
 	path = Content/pc25sub
 	url = https://github.com/dsuz/pc25sub.git
+[submodule "Plugins/ThreepeatAnimTools"]
+	path = Plugins/ThreepeatAnimTools
+	url = https://github.com/threepeatgames/ThreepeatAnimTools.git

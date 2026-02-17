@@ -141,8 +141,6 @@ void ASideScrollingCharacter::OnMovementModeChanged(EMovementMode PrevMovementMo
 void ASideScrollingCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MoveVector = Value.Get<FVector2D>();
-
-	// route the input
 	DoMove(MoveVector.Y);
 }
 
@@ -160,18 +158,22 @@ void ASideScrollingCharacter::DropReleased(const FInputActionValue& Value)
 
 void ASideScrollingCharacter::DoMove(float Forward)
 {
-	// is movement temporarily disabled after wall jumping?
-	//if (!bHasWallJumped)
-	//{
 	// save the movement values
 	ActionValueY = Forward;
 
 	// figure out the movement direction
-	const FVector MoveDir = FVector(1.0f, Forward > 0.0f ? 0.1f : -0.1f, 0.0f);
+	//const FVector MoveDir = FVector(1.0f, Forward > 0.0f ? 0.1f : -0.1f, 0.0f);
+	const FVector MoveDir = FVector(1.0f, 0, 0.0f);
 
 	// apply the movement input
-	AddMovementInput(MoveDir, Forward);
-	//}
+	if (bCrouch)
+	{
+		SetActorRotation((Forward * MoveDir).Rotation());
+	}	// しゃがんでいる時は方向転換のみ
+	else
+	{
+		AddMovementInput(MoveDir, Forward);
+	}
 }
 
 void ASideScrollingCharacter::DoDrop(float Value)
@@ -369,6 +371,18 @@ void ASideScrollingCharacter::StopJumpingIfInTheAir()
 // 	// reset the wall jump flag
 // 	bHasWallJumped = false;
 // }
+
+void ASideScrollingCharacter::Crouch(bool bClientSimulation)
+{
+	Super::Crouch(bClientSimulation);
+	bCrouch = true;
+}
+
+void ASideScrollingCharacter::UnCrouch(bool bClientSimulation)
+{
+	Super::UnCrouch(bClientSimulation);
+	bCrouch = false;
+}
 
 void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
 {

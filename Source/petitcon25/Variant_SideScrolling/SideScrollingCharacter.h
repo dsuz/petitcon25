@@ -96,6 +96,7 @@ protected:
 
 	/** If true, this character is moving along the side scrolling axis */
 	bool bMovingHorizontally = false;
+	bool bCrouch = false;
 
 public:
 	
@@ -124,6 +125,7 @@ protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
+protected:
 	/** Called for drop from platform input */
 	void Drop(const FInputActionValue& Value);
 
@@ -171,7 +173,9 @@ protected:
 	void OnAttackMontageNotifyBegin(FName NotifyName,  const FBranchingPointNotifyPayload& Payload);
 	UPROPERTY()
 	TObjectPtr<UPrimitiveComponent> CurrentAttackBounds;	// 攻撃範囲のコリジョン
-	UAnimInstance* AnimInstance; 
+	UAnimInstance* AnimInstance;
+	virtual void Crouch(bool bClientSimulation = false) override;
+	virtual void UnCrouch(bool bClientSimulation = false) override;
 public:
 
 	/** Sets the soft collision response. True passes, False blocks */

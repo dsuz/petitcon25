@@ -120,11 +120,12 @@ void ASideScrollingCharacter::NotifyHit(class UPrimitiveComponent* MyComp, AActo
 	}
 }
 
-// void ASideScrollingCharacter::Landed(const FHitResult& Hit)
-// {
-// 	// reset the double jump
-// 	bHasDoubleJumped = false;
-// }
+void ASideScrollingCharacter::Landed(const FHitResult& Hit)
+{
+	// reset the double jump
+	//bHasDoubleJumped = false;
+	UE_LOG(LogTemp, Log, TEXT("Landed"));
+}
 
 void ASideScrollingCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode /*= 0*/)
 {

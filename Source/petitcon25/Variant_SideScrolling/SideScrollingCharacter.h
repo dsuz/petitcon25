@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums.h"
 #include "GameFramework/GameplayCameraComponent.h"
 #include "GameFramework/Character.h"
 #include "SideScrollingCharacter.generated.h"
@@ -176,14 +177,19 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void StopJumpingIfInTheAir();
 	UFUNCTION(BlueprintCallable, Category="Input")
-	void Attack(UAnimMontage* Montage, UPrimitiveComponent* AttackBounds, float PlayRate = 1);
+	void Attack(UAnimMontage* Montage, UPrimitiveComponent* AttackBounds, float PlayRate = 1, bool bDisableMovement = true, bool bDisableInput = true);
 	UFUNCTION()
 	void OnAttackMontageNotifyBegin(FName NotifyName,  const FBranchingPointNotifyPayload& Payload);
 	UPROPERTY()
 	TObjectPtr<UPrimitiveComponent> CurrentAttackBounds;	// 攻撃範囲のコリジョン
-	UAnimInstance* AnimInstance;
+	UPROPERTY()
+	TObjectPtr<UAnimInstance> AnimInstance;
 	virtual void Crouch(bool bClientSimulation = false) override;
 	virtual void UnCrouch(bool bClientSimulation = false) override;
+	bool bAttacking = false;
+	bool bStandupOnEndAttack = false;
+	UFUNCTION(BlueprintCallable)
+	EPlayerMovementState CheckCharacterMovementState();
 public:
 
 	/** Sets the soft collision response. True passes, False blocks */

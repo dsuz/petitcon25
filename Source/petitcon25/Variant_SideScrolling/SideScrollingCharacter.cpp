@@ -70,7 +70,8 @@ ASideScrollingCharacter::ASideScrollingCharacter()
 	// Gameplay Camera
 	//GameplayCameraComponent = CreateDefaultSubobject<UGameplayCameraComponent>(TEXT("GameplayCamera"));
 	GameplayCamera = CreateDefaultSubobject<UGameplayCameraComponent>(TEXT("Camera"));	// なぜか名前が "Camera" 以外だと BP エディタ上でデフォルトを表示できない
-	GameplayCamera->SetupAttachment(RootComponent);
+	auto SkeletalMesh = GetMesh();
+	GameplayCamera->SetupAttachment(SkeletalMesh);
 }
 
 void ASideScrollingCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -387,15 +388,41 @@ void ASideScrollingCharacter::StopJumpingIfInTheAir()
 void ASideScrollingCharacter::Crouch(bool bClientSimulation)
 {
 	Super::Crouch(bClientSimulation);
-	AdjustCameraRelativePositionZ(CrouchCameraRelativePositionZ);
+	//AdjustCameraRelativePositionZ(CrouchCameraRelativePositionZ);
 	bCrouch = true;
 }
 
 void ASideScrollingCharacter::UnCrouch(bool bClientSimulation)
 {
+	if (bAttacking)
+	{
+		bStandupOnEndAttack = true;
+		return;
+	}
 	Super::UnCrouch(bClientSimulation);
-	AdjustCameraRelativePositionZ(DefaultCameraRelativePositionZ);
+	//AdjustCameraRelativePositionZ(DefaultCameraRelativePositionZ);
 	bCrouch = false;
+	bStandupOnEndAttack = false;
+}
+
+EPlayerMovementState ASideScrollingCharacter::CheckCharacterMovementState()
+{
+	auto Movement = GetCharacterMovement();
+	EPlayerMovementState State = EPlayerMovementState::Standing;
+	
+	if (Movement->IsFalling())
+	{
+		State = EPlayerMovementState::JumpDown;
+		if (Movement->GetLastUpdateVelocity().Z > 0)
+			State = EPlayerMovementState::JumpUp;
+		//UE_LOG(LogTemp, Log, TEXT("Movement State: %s"), *StaticEnum<EPlayerMovementState>()->GetValueAsString(State));
+		return State;
+	}
+	
+	if (Movement->IsCrouching())
+		State = EPlayerMovementState::Crouching;
+	//UE_LOG(LogTemp, Log, TEXT("Movement State: %s"), *StaticEnum<EPlayerMovementState>()->GetValueAsString(State));
+	return State;
 }
 
 void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
@@ -414,9 +441,15 @@ void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
 // 	return bHasWallJumped;
 // }
 
-void ASideScrollingCharacter::Attack(UAnimMontage* Montage, UPrimitiveComponent* AttackBounds, float PlayRate)
+void ASideScrollingCharacter::Attack(UAnimMontage* Montage, UPrimitiveComponent* AttackBounds, float PlayRate, bool bDisableMovement, bool bDisableInput)
 {
-	DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (bAttacking)
+		return;
+	bAttacking = true;
+	if (bDisableInput)
+		DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (bDisableMovement)
+		GetCharacterMovement()->SetMovementMode(MOVE_None);
 	
 	if (AnimInstance)
 	{
@@ -457,7 +490,15 @@ void ASideScrollingCharacter::OnAttackMontageNotifyBegin(FName NotifyName, const
 	}
 	else if (NotifyName == FName("AcceptInput"))
 	{
-		EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		bAttacking = false;
+		if (bStandupOnEndAttack)
+		{
+			UnCrouch();
+		}
+		if (!InputEnabled())
+			EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (GetCharacterMovement()->MovementMode == MOVE_None)
+			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	}
 }
 

@@ -17,11 +17,10 @@ public class petitcon25 : ModuleRules
 			"AIModule",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
+			"GameplayCameras",
 			"UMG",
 			"Slate"
 		});
-
-		PrivateDependencyModuleNames.AddRange(new string[] { });
 
 		PublicIncludePaths.AddRange(new string[] {
 			"petitcon25",

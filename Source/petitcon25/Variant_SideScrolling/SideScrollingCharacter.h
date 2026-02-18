@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/GameplayCameraComponent.h"
 #include "GameFramework/Character.h"
 #include "SideScrollingCharacter.generated.h"
 
@@ -97,6 +98,13 @@ protected:
 	/** If true, this character is moving along the side scrolling axis */
 	bool bMovingHorizontally = false;
 	bool bCrouch = false;
+	UPROPERTY(BlueprintReadWrite)
+	float CrouchCameraRelativePositionZ = 0.0f;
+	UPROPERTY(BlueprintReadWrite)
+	float DefaultCameraRelativePositionZ = 0.0f;
+	void AdjustCameraRelativePositionZ(float CameraRelativePositionZ);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UGameplayCameraComponent> GameplayCamera;
 
 public:
 	
@@ -180,9 +188,6 @@ public:
 
 	/** Sets the soft collision response. True passes, False blocks */
 	void SetSoftCollision(bool bEnabled);
-
-public:
-
 	/** Returns true if the character has just double jumped */
 	// UFUNCTION(BlueprintPure, Category="Side Scrolling")
 	// bool HasDoubleJumped() const;

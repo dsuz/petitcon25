@@ -16,6 +16,13 @@
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
 
+void ASideScrollingCharacter::AdjustCameraRelativePositionZ(float CameraRelativePositionZ)
+{
+	auto NewVector = GameplayCamera->GetRelativeLocation();
+	NewVector.Z = CameraRelativePositionZ;
+	GameplayCamera->SetRelativeLocation(NewVector);
+}
+
 ASideScrollingCharacter::ASideScrollingCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -27,7 +34,7 @@ ASideScrollingCharacter::ASideScrollingCharacter()
 	// Camera->SetRelativeLocationAndRotation(FVector(0.0f, 300.0f, 0.0f), FRotator(0.0f, -90.0f, 0.0f));
 
 	// configure the collision capsule
-	GetCapsuleComponent()->SetCapsuleSize(35.0f, 90.0f);
+	//GetCapsuleComponent()->SetCapsuleSize(35.0f, 90.0f);
 
 	// configure the Pawn properties
 	bUseControllerRotationYaw = false;
@@ -58,7 +65,12 @@ ASideScrollingCharacter::ASideScrollingCharacter()
 	GetCharacterMovement()->bConstrainToPlane = true;
 
 	// enable double jump and coyote time
-	JumpMaxCount = 3;
+	//JumpMaxCount = 3;
+	
+	// Gameplay Camera
+	//GameplayCameraComponent = CreateDefaultSubobject<UGameplayCameraComponent>(TEXT("GameplayCamera"));
+	GameplayCamera = CreateDefaultSubobject<UGameplayCameraComponent>(TEXT("Camera"));	// なぜか名前が "Camera" 以外だと BP エディタ上でデフォルトを表示できない
+	GameplayCamera->SetupAttachment(RootComponent);
 }
 
 void ASideScrollingCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -124,7 +136,6 @@ void ASideScrollingCharacter::Landed(const FHitResult& Hit)
 {
 	// reset the double jump
 	//bHasDoubleJumped = false;
-	UE_LOG(LogTemp, Log, TEXT("Landed"));
 }
 
 void ASideScrollingCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode /*= 0*/)
@@ -376,12 +387,14 @@ void ASideScrollingCharacter::StopJumpingIfInTheAir()
 void ASideScrollingCharacter::Crouch(bool bClientSimulation)
 {
 	Super::Crouch(bClientSimulation);
+	AdjustCameraRelativePositionZ(CrouchCameraRelativePositionZ);
 	bCrouch = true;
 }
 
 void ASideScrollingCharacter::UnCrouch(bool bClientSimulation)
 {
 	Super::UnCrouch(bClientSimulation);
+	AdjustCameraRelativePositionZ(DefaultCameraRelativePositionZ);
 	bCrouch = false;
 }
 

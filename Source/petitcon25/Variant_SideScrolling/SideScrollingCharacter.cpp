@@ -475,16 +475,16 @@ void ASideScrollingCharacter::OnAttackMontageNotifyBegin(FName NotifyName, const
 	{
 		if (CurrentAttackBounds)
 		{
-			TArray<AActor*> Enemies;
-			CurrentAttackBounds->GetOverlappingActors(Enemies, AEnemy::StaticClass());
+			TArray<AActor*> Actors;
+			CurrentAttackBounds->GetOverlappingActors(Actors, AActor::StaticClass());
 			
-			for (auto Item : Enemies)
+			for (auto Item : Actors)
 			{
-				if (auto Enemy = Cast<AEnemy>(Item))
-				{
+				//if (auto Enemy = Cast<AEnemy>(Item))
+				//{
 					FDamageEvent DamageEvent;
-					Enemy->TakeDamage(1, DamageEvent, nullptr, this);
-				}
+					Item->TakeDamage(1, DamageEvent, nullptr, this);
+				//}
 			}
 		}
 	}

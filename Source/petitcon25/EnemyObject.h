@@ -13,6 +13,8 @@ protected:
 	virtual void BeginPlay() override;
 	float Life = 0;
 	float MaxLife = 1;
+	UPROPERTY(EditDefaultsOnly)
+	float Damage = 1;
 	UFUNCTION(BlueprintNativeEvent)
 	void Die(AActor* DamageCauser);
 

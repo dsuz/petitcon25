@@ -1,4 +1,6 @@
 #include "EnemyObject.h"
+#include "Engine/DamageEvents.h"
+#include "SideScrollingCharacter.h"
 
 void AEnemyObject::Die_Implementation(AActor* DamageCauser)
 {
@@ -9,7 +11,14 @@ void AEnemyObject::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimit
                              bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-	Die(nullptr);
+	if (auto Player = Cast<ASideScrollingCharacter>(Other))
+	{
+		Die(Player);
+		FDamageEvent DamageEvent;
+		Player->TakeDamage(Damage, DamageEvent, nullptr, this);
+	}
+	else
+		Die(nullptr);
 }
 
 AEnemyObject::AEnemyObject()

@@ -27,20 +27,20 @@ class ASideScrollingCharacter : public ACharacter
 protected:
 
 	/** Move Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* MoveAction;
-
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* JumpAction;
-
-	/** Drop from Platform Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* DropAction;
-
-	/** Interact Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* InteractAction;
+	// UPROPERTY(EditAnywhere, Category="Input")
+	// UInputAction* MoveAction;
+	//
+	// /** Jump Input Action */
+	// UPROPERTY(EditAnywhere, Category="Input")
+	// UInputAction* JumpAction;
+	//
+	// /** Drop from Platform Action */
+	// UPROPERTY(EditAnywhere, Category="Input")
+	// UInputAction* DropAction;
+	//
+	// /** Interact Input Action */
+	// UPROPERTY(EditAnywhere, Category="Input")
+	// UInputAction* InteractAction;
 
 	/** Impulse to manually push physics objects while we're in midair */
 	UPROPERTY(EditAnywhere, Category="Side Scrolling|Jump")
@@ -106,6 +106,8 @@ protected:
 	void AdjustCameraRelativePositionZ(float CameraRelativePositionZ);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UGameplayCameraComponent> GameplayCamera;
+	float Life = 0;
+	float MaxLife = 100;
 
 public:
 	
@@ -132,7 +134,8 @@ protected:
 protected:
 
 	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
+	UFUNCTION(BlueprintCallable, Category="Input")
+	void Move(const FVector2D& Value);
 
 protected:
 	/** Called for drop from platform input */
@@ -179,7 +182,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	void Attack(UAnimMontage* Montage, UPrimitiveComponent* AttackBounds, float PlayRate = 1, bool bDisableMovement = true, bool bDisableInput = true);
 	UFUNCTION()
-	void OnAttackMontageNotifyBegin(FName NotifyName,  const FBranchingPointNotifyPayload& Payload);
+	void OnMontageNotifyBegin(FName NotifyName,  const FBranchingPointNotifyPayload& Payload);
 	UPROPERTY()
 	TObjectPtr<UPrimitiveComponent> CurrentAttackBounds;	// 攻撃範囲のコリジョン
 	UPROPERTY()
@@ -190,7 +193,13 @@ protected:
 	bool bStandupOnEndAttack = false;
 	UFUNCTION(BlueprintCallable)
 	EPlayerMovementState CheckCharacterMovementState();
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAnimMontage> HitReaction;
+
 public:
+	UFUNCTION(BlueprintCallable)
+	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
+		AActor* DamageCauser) override;
 
 	/** Sets the soft collision response. True passes, False blocks */
 	void SetSoftCollision(bool bEnabled);

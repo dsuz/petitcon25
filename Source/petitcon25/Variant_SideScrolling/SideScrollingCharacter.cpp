@@ -72,6 +72,8 @@ ASideScrollingCharacter::ASideScrollingCharacter()
 	GameplayCamera = CreateDefaultSubobject<UGameplayCameraComponent>(TEXT("Camera"));	// なぜか名前が "Camera" 以外だと BP エディタ上でデフォルトを表示できない
 	auto SkeletalMesh = GetMesh();
 	GameplayCamera->SetupAttachment(SkeletalMesh);
+	
+	Life = MaxLife;
 }
 
 void ASideScrollingCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -94,16 +96,16 @@ void ASideScrollingCharacter::SetupPlayerInputComponent(class UInputComponent* P
 		// EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Interacting
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this,
-		                                   &ASideScrollingCharacter::DoInteract);
+		// EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this,
+		//                                    &ASideScrollingCharacter::DoInteract);
 
 		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASideScrollingCharacter::Move);
+		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASideScrollingCharacter::Move);
 
 		// Dropping from platform
-		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Triggered, this, &ASideScrollingCharacter::Drop);
-		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Completed, this,
-		                                   &ASideScrollingCharacter::DropReleased);
+		// EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Triggered, this, &ASideScrollingCharacter::Drop);
+		// EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Completed, this,
+		//                                    &ASideScrollingCharacter::DropReleased);
 	}
 }
 
@@ -151,10 +153,10 @@ void ASideScrollingCharacter::OnMovementModeChanged(EMovementMode PrevMovementMo
 	}
 }
 
-void ASideScrollingCharacter::Move(const FInputActionValue& Value)
+void ASideScrollingCharacter::Move(const FVector2D& Value)
 {
-	FVector2D MoveVector = Value.Get<FVector2D>();
-	DoMove(MoveVector.Y);
+	//FVector2D MoveVector = Value.Get<FVector2D>();
+	DoMove(Value.Y);
 }
 
 void ASideScrollingCharacter::Drop(const FInputActionValue& Value)
@@ -242,7 +244,7 @@ void ASideScrollingCharacter::BeginPlay()
 	AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
-		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ASideScrollingCharacter::OnAttackMontageNotifyBegin);
+		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ASideScrollingCharacter::OnMontageNotifyBegin);
 	}
 	else
 	{
@@ -425,6 +427,20 @@ EPlayerMovementState ASideScrollingCharacter::CheckCharacterMovementState()
 	return State;
 }
 
+float ASideScrollingCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	if (Damage > 0)
+	{
+		DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		AnimInstance->Montage_Play(HitReaction);
+		Life -= Damage;
+		auto Message = FString::Printf(TEXT("Life: %f"), Life);
+		GEngine->AddOnScreenDebugMessage(99, 30, FColor::Green, Message);
+	}
+	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+}
+
 void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
 {
 	// enable or disable collision response to the soft collision channel
@@ -469,7 +485,7 @@ void ASideScrollingCharacter::Attack(UAnimMontage* Montage, UPrimitiveComponent*
 	}
 }
 
-void ASideScrollingCharacter::OnAttackMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
+void ASideScrollingCharacter::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
 {
 	if (NotifyName == FName("Attack"))
 	{
@@ -480,11 +496,11 @@ void ASideScrollingCharacter::OnAttackMontageNotifyBegin(FName NotifyName, const
 			
 			for (auto Item : Actors)
 			{
-				//if (auto Enemy = Cast<AEnemy>(Item))
-				//{
+				if (Item != this)
+				{
 					FDamageEvent DamageEvent;
 					Item->TakeDamage(1, DamageEvent, nullptr, this);
-				//}
+				}	// don't damage myselfa
 			}
 		}
 	}

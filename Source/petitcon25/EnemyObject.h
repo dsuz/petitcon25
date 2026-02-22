@@ -13,7 +13,8 @@ protected:
 	virtual void BeginPlay() override;
 	float Life = 0;
 	float MaxLife = 1;
-	void Die();
+	UFUNCTION(BlueprintNativeEvent)
+	void Die(AActor* DamageCauser);
 
 public:
 	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,

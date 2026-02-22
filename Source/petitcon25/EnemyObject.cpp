@@ -1,17 +1,15 @@
 #include "EnemyObject.h"
 
-#include "Engine/StaticMeshActor.h"
-
-void AEnemyObject::Die()
+void AEnemyObject::Die_Implementation(AActor* DamageCauser)
 {
 	Destroy();
 }
 
 void AEnemyObject::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp,
-	bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+                             bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-	Die();
+	Die(nullptr);
 }
 
 AEnemyObject::AEnemyObject()
@@ -37,7 +35,7 @@ float AEnemyObject::TakeDamage(float DamageAmount, const FDamageEvent& DamageEve
 	Life -= DamageAmount;
 	if (Life <= 0)
 	{
-		Die();
+		Die(DamageCauser);
 	}
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }

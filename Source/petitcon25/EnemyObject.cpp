@@ -2,8 +2,36 @@
 #include "Engine/DamageEvents.h"
 #include "SideScrollingCharacter.h"
 
+AEnemyObject::AEnemyObject()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	SphereComp->SetSimulatePhysics(true);
+	SphereComp->SetCollisionProfileName(TEXT("BlockAll"));
+	SphereComp->SetNotifyRigidBodyCollision(true);
+	SphereComp->SetupAttachment(RootComponent);
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMeshComp->SetupAttachment(SphereComp);
+}
+
+void AEnemyObject::Activate_Implementation()
+{
+	for (auto Actor : ActorsSpawnedOnActivate)
+	{
+		auto Tx = GetActorTransform();
+		FActorSpawnParameters SpawnInfo;
+		GetWorld()->SpawnActor<AActor>(Actor.Get(), Tx.GetLocation(), Tx.Rotator(), SpawnInfo);
+	}
+}
+
 void AEnemyObject::Die_Implementation(AActor* DamageCauser)
 {
+	for (auto Actor : ActorsSpawnedOnDeath)
+	{
+		auto Tx = GetActorTransform();
+		FActorSpawnParameters SpawnInfo;
+		GetWorld()->SpawnActor<AActor>(Actor.Get(), Tx.GetLocation(), Tx.Rotator(), SpawnInfo);
+	}
 	Destroy();
 }
 
@@ -13,17 +41,16 @@ void AEnemyObject::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimit
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 	if (auto Player = Cast<ASideScrollingCharacter>(Other))
 	{
-		Die(Player);
+		// Die(Player);
 		FDamageEvent DamageEvent;
 		Player->TakeDamage(Damage, DamageEvent, nullptr, this);
-	}
+	}	// プレイヤーに当たったらダメージを与え、消える
 	else
-		Die(nullptr);
-}
-
-AEnemyObject::AEnemyObject()
-{
-	PrimaryActorTick.bCanEverTick = true;
+	{
+		Activate();
+		// Die(nullptr);
+	}	// 地面に落ちたら効果を発動し、消える
+	Die(nullptr);
 }
 
 void AEnemyObject::BeginPlay()

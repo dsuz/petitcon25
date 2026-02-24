@@ -9,8 +9,9 @@ AEnemyObject::AEnemyObject()
 	SphereComp->SetSimulatePhysics(true);
 	SphereComp->SetCollisionProfileName(TEXT("BlockAll"));
 	SphereComp->SetNotifyRigidBodyCollision(true);
-	SphereComp->SetupAttachment(RootComponent);
+	SetRootComponent(SphereComp);
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMeshComp->SetCollisionProfileName(TEXT("NoCollision"));	// メッシュではなくSphereで当たり判定する
 	StaticMeshComp->SetupAttachment(SphereComp);
 }
 

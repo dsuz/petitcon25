@@ -54,6 +54,9 @@ void AEnemy::ActivateRagdoll()
 	// Detach controller (optional)
 	// DetachFromControllerPendingDestroy();
 
+	// Stop Animation
+	GetMesh()->Stop();
+	
 	// Set collision profile for ragdoll
 	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
 

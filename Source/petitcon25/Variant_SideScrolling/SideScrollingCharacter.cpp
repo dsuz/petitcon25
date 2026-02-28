@@ -500,7 +500,7 @@ void ASideScrollingCharacter::OnMontageNotifyBegin(FName NotifyName, const FBran
 				{
 					FDamageEvent DamageEvent;
 					Item->TakeDamage(1, DamageEvent, nullptr, this);
-				}	// don't damage myselfa
+				}	// don't damage myself
 			}
 		}
 	}

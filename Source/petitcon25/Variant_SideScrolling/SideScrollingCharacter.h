@@ -108,6 +108,7 @@ protected:
 	TObjectPtr<UGameplayCameraComponent> GameplayCamera;
 	float Life = 0;
 	float MaxLife = 100;
+	bool bIsHugged = false;
 
 public:
 	
@@ -195,12 +196,18 @@ protected:
 	EPlayerMovementState CheckCharacterMovementState();
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> HitReaction;
+	int32 HugCount = 0;
+	void ShakeFree();
 
 public:
 	UFUNCTION(BlueprintCallable)
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;
-
+	UFUNCTION(BlueprintCallable)
+	void Hug();
+	UFUNCTION(BlueprintCallable)
+	bool IsHugged();
+	
 	/** Sets the soft collision response. True passes, False blocks */
 	void SetSoftCollision(bool bEnabled);
 	/** Returns true if the character has just double jumped */

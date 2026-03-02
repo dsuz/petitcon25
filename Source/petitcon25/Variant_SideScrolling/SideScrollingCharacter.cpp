@@ -9,7 +9,7 @@
 #include "Components/InputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputComponent.h"
-#include "InputAction.h"
+//#include "InputAction.h"
 #include "Engine/World.h"
 #include "SideScrollingInteractable.h"
 #include "TimerManager.h"
@@ -427,8 +427,28 @@ EPlayerMovementState ASideScrollingCharacter::CheckCharacterMovementState()
 	return State;
 }
 
+void ASideScrollingCharacter::ShakeFree()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("ShakeOff"));
+	bIsHugged = false;
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), FoundActors);
+	for (auto Actor : FoundActors)
+	{
+		if (auto Enemy = Cast<AEnemy>(Actor))
+		{
+			if (Enemy->IsHugging())
+			{
+				FDamageEvent DamageEvent;
+				Enemy->TakeDamage(100, DamageEvent, nullptr, this);
+			}
+		}
+	}
+}
+
 float ASideScrollingCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
-	AActor* DamageCauser)
+                                          AActor* DamageCauser)
 {
 	if (Damage > 0)
 	{
@@ -439,6 +459,19 @@ float ASideScrollingCharacter::TakeDamage(float Damage, const FDamageEvent& Dama
 		GEngine->AddOnScreenDebugMessage(99, 30, FColor::Green, Message);
 	}
 	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void ASideScrollingCharacter::Hug()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hugged"));
+	bIsHugged = true;
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+	HugCount += 5;
+}
+
+bool ASideScrollingCharacter::IsHugged()
+{
+	return bIsHugged;
 }
 
 void ASideScrollingCharacter::SetSoftCollision(bool bEnabled)
@@ -461,6 +494,15 @@ void ASideScrollingCharacter::Attack(UAnimMontage* Montage, UPrimitiveComponent*
 {
 	if (bAttacking)
 		return;
+	if (bIsHugged)
+	{
+		HugCount--;
+		if (HugCount < 1)
+		{
+			ShakeFree();
+		}
+		return;
+	}
 	bAttacking = true;
 	if (bDisableInput)
 		DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));

@@ -31,6 +31,8 @@ protected:
 	TObjectPtr<APawn> PlayerPawn;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float PushOnDie = 1500;	// 倒された時に吹っ飛ばされる力
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsHugging = false;
 
 public:	
 	// Called every frame
@@ -40,4 +42,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;
+	UFUNCTION(BlueprintCallable)
+	bool IsHugging();
 };

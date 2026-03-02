@@ -19,6 +19,13 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	// restrict movement only on x-axis
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->SetPlaneConstraintEnabled(true);
+		MoveComp->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Y);
+		MoveComp->SetPlaneConstraintOrigin(FVector::ZeroVector);
+	}
 }
 
 void AEnemy::Die(AActor* DamageCauser)
@@ -85,6 +92,11 @@ float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AControl
 	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 }
 
+bool AEnemy::IsHugging()
+{
+	return bIsHugging;
+}
+
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
@@ -96,6 +108,12 @@ void AEnemy::Tick(float DeltaTime)
 		{
 			Destroy();
 		}
+	}
+	if (GetActorLocation().Y != 0)
+	{
+		FVector Location = GetActorLocation();
+		Location.Y = 0;
+		SetActorLocation(Location);
 	}
 }
 

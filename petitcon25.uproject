@@ -46,6 +46,10 @@
 		{
 			"Name": "NiagaraFluids",
 			"Enabled": true
+		},
+		{
+			"Name": "MetaHumanForMaya",
+			"Enabled": true
 		}
 	]
 }

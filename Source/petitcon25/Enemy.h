@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums.h"
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
@@ -33,6 +34,8 @@ protected:
 	float PushOnDie = 1500;	// 倒された時に吹っ飛ばされる力
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsHugging = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TEnumAsByte<EHumanoidEnemyType> HumanoidEnemyType = Hugger;
 
 public:	
 	// Called every frame

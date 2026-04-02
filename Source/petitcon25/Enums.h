@@ -8,3 +8,10 @@ enum EPlayerMovementState
 	JumpDown,
 	Crouching,
 };
+
+UENUM(BlueprintType)
+enum EHumanoidEnemyType
+{
+	Hugger,
+	Boss,
+};
